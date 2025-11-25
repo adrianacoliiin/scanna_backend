@@ -91,7 +91,7 @@ async def get_current_especialista(
     # Actualizar último acceso
     await db.especialistas.update_one(
         {"_id": especialista["_id"]},
-        {"$set": {"ultimo_acceso": datetime.utcnow()}}
+        {"$set": {"ultimoAcceso": datetime.utcnow()}}
     )
     
     return especialista

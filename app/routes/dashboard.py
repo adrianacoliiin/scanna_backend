@@ -27,20 +27,20 @@ async def obtener_estadisticas_dashboard(
     
     # 1. Detecciones hoy
     detecciones_hoy = await db.registros.count_documents({
-        "especialista_id": especialista_id,
-        "fecha_analisis": {"$gte": hoy_inicio, "$lt": hoy_fin}
+        "especialistaId": especialista_id,
+        "fechaAnalisis": {"$gte": hoy_inicio, "$lt": hoy_fin}
     })
     
     # 2. Casos positivos (total)
     casos_positivos = await db.registros.count_documents({
-        "especialista_id": especialista_id,
+        "especialistaId": especialista_id,
         "resultado": "Anemia"
     })
     
     # 3. Total de pacientes únicos (contando nombres únicos)
     # Nota: En producción, considera usar un campo de ID de paciente único
     pipeline_pacientes = [
-        {"$match": {"especialista_id": especialista_id}},
+        {"$match": {"especialistaId": especialista_id}},
         {"$group": {"_id": "$paciente.nombre"}},
         {"$count": "total"}
     ]
@@ -49,8 +49,8 @@ async def obtener_estadisticas_dashboard(
     
     # 4. Detecciones esta semana
     esta_semana = await db.registros.count_documents({
-        "especialista_id": especialista_id,
-        "fecha_analisis": {"$gte": semana_inicio}
+        "especialistaId": especialista_id,
+        "fechaAnalisis": {"$gte": semana_inicio}
     })
     
     # 5. Distribución por edad
@@ -58,11 +58,11 @@ async def obtener_estadisticas_dashboard(
     
     # 6. Resumen de detecciones
     total_registros = await db.registros.count_documents({
-        "especialista_id": especialista_id
+        "especialistaId": especialista_id
     })
     
     casos_negativos = await db.registros.count_documents({
-        "especialista_id": especialista_id,
+        "especialistaId": especialista_id,
         "resultado": "No Anemia"
     })
     
@@ -95,7 +95,7 @@ async def calcular_distribucion_edad(db, especialista_id):
     """
     # Pipeline de agregación para agrupar por rangos de edad
     pipeline = [
-        {"$match": {"especialista_id": especialista_id}},
+        {"$match": {"especialistaId": especialista_id}},
         {
             "$bucket": {
                 "groupBy": "$paciente.edad",
@@ -169,20 +169,20 @@ async def obtener_actividad_reciente(
     db = get_database()
     especialista_id = current_especialista["_id"]
     
-    # Obtener últimos registros
+    # Obtener ultimos registros
     registros = await db.registros.find({
-        "especialista_id": especialista_id
-    }).sort("fecha_analisis", -1).limit(limit).to_list(length=limit)
+        "especialistaId": especialista_id
+    }).sort("fechaAnalisis", -1).limit(limit).to_list(length=limit)
     
     # Formatear resultados
     actividad = []
     for registro in registros:
         actividad.append({
             "id": str(registro["_id"]),
-            "numero_expediente": registro["numero_expediente"],
+            "numeroExpediente": registro["numeroExpediente"],
             "paciente": registro["paciente"]["nombre"],
             "resultado": registro["resultado"],
-            "fecha": registro["fecha_analisis"].isoformat()
+            "fecha": registro["fechaAnalisis"].isoformat()
         })
     
     return actividad
@@ -206,8 +206,8 @@ async def obtener_tendencias(
     pipeline = [
         {
             "$match": {
-                "especialista_id": especialista_id,
-                "fecha_analisis": {"$gte": fecha_inicio}
+                "especialistaId": especialista_id,
+                "fechaAnalisis": {"$gte": fecha_inicio}
             }
         },
         {
@@ -215,7 +215,7 @@ async def obtener_tendencias(
                 "_id": {
                     "$dateToString": {
                         "format": "%Y-%m-%d",
-                        "date": "$fecha_analisis"
+                        "date": "$fechaAnalisis"
                     }
                 },
                 "total": {"$sum": 1},

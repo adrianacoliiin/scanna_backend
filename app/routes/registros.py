@@ -45,11 +45,11 @@ async def crear_registro(
         numero_expediente = generate_numero_expediente()
         
         # Verificar que sea único
-        while await db.registros.find_one({"numero_expediente": numero_expediente}):
+        while await db.registros.find_one({"numeroExpediente": numero_expediente}):
             numero_expediente = generate_numero_expediente()
     else:
         # Verificar que no exista
-        existing = await db.registros.find_one({"numero_expediente": numero_expediente})
+        existing = await db.registros.find_one({"numeroExpediente": numero_expediente})
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -88,25 +88,25 @@ async def crear_registro(
     
     # Crear documento de registro
     registro_doc = {
-        "numero_expediente": numero_expediente,
+        "numeroExpediente": numero_expediente,  
         "paciente": {
             "nombre": paciente_nombre,
             "edad": paciente_edad,
             "sexo": paciente_sexo
         },
-        "especialista_id": current_especialista["_id"],
+        "especialistaId": current_especialista["_id"], 
         "imagenes": {
-            "ruta_original": ruta_original,
-            "ruta_mapa_atencion": ruta_mapa
+            "rutaOriginal": ruta_original, 
+            "rutaMapaAtencion": ruta_mapa  
         },
         "analisis": {
             "resultado": resultado,
-            "ai_summary": ai_summary
+            "aiSummary": ai_summary  
         },
         "resultado": resultado,
-        "fecha_analisis": datetime.utcnow(),
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "fechaAnalisis": datetime.utcnow(), 
+        "createdAt": datetime.utcnow(),  
+        "updatedAt": datetime.utcnow()  
     }
     
     # Insertar en la base de datos
@@ -117,7 +117,7 @@ async def crear_registro(
     
     # Convertir ObjectIds a strings
     created_registro["_id"] = str(created_registro["_id"])
-    created_registro["especialista_id"] = str(created_registro["especialista_id"])
+    created_registro["especialistaId"] = str(created_registro["especialistaId"])
     
     return created_registro
 
@@ -135,7 +135,7 @@ async def listar_registros(
     especialista_id = current_especialista["_id"]
     
     # Construir query
-    query = {"especialista_id": especialista_id}
+    query = {"especialistaId": especialista_id}
     
     # Filtro por resultado
     if resultado and resultado in ["Anemia", "No Anemia"]:
@@ -145,12 +145,12 @@ async def listar_registros(
     if buscar:
         query["$or"] = [
             {"paciente.nombre": {"$regex": buscar, "$options": "i"}},
-            {"numero_expediente": {"$regex": buscar, "$options": "i"}}
+            {"numeroExpediente": {"$regex": buscar, "$options": "i"}} 
         ]
     
     # Obtener registros
     registros = await db.registros.find(query)\
-        .sort("fecha_analisis", -1)\
+        .sort("fechaAnalisis", -1)\
         .skip(skip)\
         .limit(limit)\
         .to_list(length=limit)
@@ -158,7 +158,7 @@ async def listar_registros(
     # Convertir ObjectIds a strings
     for registro in registros:
         registro["_id"] = str(registro["_id"])
-        registro["especialista_id"] = str(registro["especialista_id"])
+        registro["especialistaId"] = str(registro["especialistaId"])
     
     return registros
 
@@ -178,10 +178,10 @@ async def obtener_registro(
             detail="ID de registro inválido"
         )
     
-    # Buscar registro
+    # Buscar registro 
     registro = await db.registros.find_one({
         "_id": ObjectId(registro_id),
-        "especialista_id": current_especialista["_id"]
+        "especialistaId": current_especialista["_id"]
     })
     
     if not registro:
@@ -192,7 +192,7 @@ async def obtener_registro(
     
     # Convertir ObjectIds a strings
     registro["_id"] = str(registro["_id"])
-    registro["especialista_id"] = str(registro["especialista_id"])
+    registro["especialistaId"] = str(registro["especialistaId"])
     
     return registro
 
@@ -205,9 +205,10 @@ async def obtener_registro_por_expediente(
     """Obtener registro por número de expediente"""
     db = get_database()
     
+    # Query con camelCase
     registro = await db.registros.find_one({
-        "numero_expediente": numero_expediente,
-        "especialista_id": current_especialista["_id"]
+        "numeroExpediente": numero_expediente,
+        "especialistaId": current_especialista["_id"]
     })
     
     if not registro:
@@ -218,7 +219,7 @@ async def obtener_registro_por_expediente(
     
     # Convertir ObjectIds a strings
     registro["_id"] = str(registro["_id"])
-    registro["especialista_id"] = str(registro["especialista_id"])
+    registro["especialistaId"] = str(registro["especialistaId"])
     
     return registro
 
@@ -238,10 +239,10 @@ async def eliminar_registro(
             detail="ID de registro inválido"
         )
     
-    # Verificar que el registro existe y pertenece al especialista
+    # Verificar con camelCase
     registro = await db.registros.find_one({
         "_id": ObjectId(registro_id),
-        "especialista_id": current_especialista["_id"]
+        "especialistaId": current_especialista["_id"]
     })
     
     if not registro:
@@ -259,10 +260,10 @@ async def eliminar_registro(
             detail="Error eliminando registro"
         )
     
-    # Eliminar archivos asociados
-    if registro.get("imagenes", {}).get("ruta_original"):
-        delete_file(registro["imagenes"]["ruta_original"])
-    if registro.get("imagenes", {}).get("ruta_mapa_atencion"):
-        delete_file(registro["imagenes"]["ruta_mapa_atencion"])
+    # Eliminar archivos 
+    if registro.get("imagenes", {}).get("rutaOriginal"):
+        delete_file(registro["imagenes"]["rutaOriginal"])
+    if registro.get("imagenes", {}).get("rutaMapaAtencion"):
+        delete_file(registro["imagenes"]["rutaMapaAtencion"])
     
     return None

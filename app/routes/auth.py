@@ -30,7 +30,7 @@ async def registrar_especialista(especialista: EspecialistaCreate):
     # Verificar cédula profesional si se proporciona
     if especialista.cedula_profesional:
         existing_cedula = await db.especialistas.find_one(
-            {"cedula_profesional": especialista.cedula_profesional}
+            {"cedulaProfesional": especialista.cedula_profesional}
         )
         if existing_cedula:
             raise HTTPException(
@@ -45,11 +45,13 @@ async def registrar_especialista(especialista: EspecialistaCreate):
         "email": especialista.email,
         "password": get_password_hash(especialista.password),
         "area": especialista.area,
-        "cedula_profesional": especialista.cedula_profesional,
+        "cedulaProfesional": especialista.cedula_profesional,
         "hospital": especialista.hospital,
         "telefono": especialista.telefono,
         "activo": True,
         "fechaRegistro": datetime.utcnow(),
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow()
     }
     
     # Insertar en la base de datos
@@ -114,7 +116,5 @@ async def login(credentials: EspecialistaLogin):
 @router.post("/verificar-token", response_model=EspecialistaResponse)
 async def verificar_token(current_especialista: dict = Depends(get_current_active_especialista)):
     """Verificar si el token es válido y retornar datos del especialista"""
-    from fastapi import Depends
-    
     current_especialista["_id"] = str(current_especialista["_id"])
     return EspecialistaResponse(**current_especialista)

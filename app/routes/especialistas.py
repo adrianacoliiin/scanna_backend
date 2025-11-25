@@ -34,7 +34,7 @@ async def actualizar_perfil(
         )
     
     # Agregar timestamp de actualización
-    update_dict["updated_at"] = datetime.utcnow()
+    update_dict["updatedAt"] = datetime.utcnow()
     
     # Actualizar en la base de datos
     result = await db.especialistas.update_one(
@@ -67,28 +67,28 @@ async def obtener_estadisticas_especialista(
     
     # Total de análisis realizados
     total_analisis = await db.registros.count_documents(
-        {"especialista_id": especialista_id}
+        {"especialistaId": especialista_id}
     )
     
     # Análisis positivos
     positivos = await db.registros.count_documents(
-        {"especialista_id": especialista_id, "resultado": "Anemia"}
+        {"especialistaId": especialista_id, "resultado": "Anemia"}
     )
     
     # Análisis negativos
     negativos = await db.registros.count_documents(
-        {"especialista_id": especialista_id, "resultado": "No Anemia"}
+        {"especialistaId": especialista_id, "resultado": "No Anemia"}
     )
     
     # Últimos 5 análisis
     ultimos_analisis = await db.registros.find(
-        {"especialista_id": especialista_id}
-    ).sort("fecha_analisis", -1).limit(5).to_list(length=5)
+        {"especialistaId": especialista_id}
+    ).sort("fechaAnalisis", -1).limit(5).to_list(length=5)
     
     # Convertir ObjectIds a strings
     for analisis in ultimos_analisis:
         analisis["_id"] = str(analisis["_id"])
-        analisis["especialista_id"] = str(analisis["especialista_id"])
+        analisis["especialistaId"] = str(analisis["especialistaId"])
     
     return {
         "total_analisis": total_analisis,

@@ -30,7 +30,7 @@ class EspecialistaCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     area: Literal["Medicina General", "Hematología", "Medicina Interna", "Pediatría", "Ginecología", "Otro"]
-    cedula_profesional: Optional[str] = None
+    cedula_profesional: Optional[str] = Field(None, alias="cedulaProfesional")
     hospital: Optional[str] = None
     telefono: Optional[str] = None
 
@@ -51,12 +51,12 @@ class EspecialistaResponse(BaseModel):
     apellido: str
     email: EmailStr
     area: str
-    cedula_profesional: Optional[str] = None
+    cedula_profesional: Optional[str] = Field(None, alias="cedulaProfesional")
     hospital: Optional[str] = None
     telefono: Optional[str] = None
     activo: bool
-    fechaRegistro: datetime
-    ultimoAcceso: Optional[datetime] = None
+    fecha_registro: datetime = Field(alias="fechaRegistro")
+    ultimo_acceso: Optional[datetime] = Field(None, alias="ultimoAcceso")
 
     class Config:
         populate_by_name = True
@@ -73,26 +73,47 @@ class PacienteData(BaseModel):
     sexo: Literal["Masculino", "Femenino", "Otro"]
 
 class ImagenesData(BaseModel):
-    ruta_original: str
-    ruta_mapa_atencion: Optional[str] = None
+    """
+    Modelo para datos de imágenes
+    Usa alias para mapear entre snake_case (Python) y camelCase (MongoDB)
+    """
+    ruta_original: str = Field(..., alias="rutaOriginal")
+    ruta_mapa_atencion: Optional[str] = Field(None, alias="rutaMapaAtencion")
+    
+    class Config:
+        populate_by_name = True
 
 class AnalisisData(BaseModel):
+    """
+    Modelo para datos de análisis
+    Usa alias para mapear entre snake_case (Python) y camelCase (MongoDB)
+    """
     resultado: Literal["Anemia", "No Anemia"]
-    ai_summary: Optional[str] = None
+    ai_summary: Optional[str] = Field(None, alias="aiSummary")
+    
+    class Config:
+        populate_by_name = True
 
 class RegistroCreate(BaseModel):
     paciente: PacienteData
-    numero_expediente: Optional[str] = None  # Se genera automáticamente si no se proporciona
+    numero_expediente: Optional[str] = Field(None, alias="numeroExpediente")
+    
+    class Config:
+        populate_by_name = True
     
 class RegistroResponse(BaseModel):
+    """
+    Modelo de respuesta para registros
+    Usa alias para mapear entre snake_case (Python) y camelCase (MongoDB)
+    """
     id: str = Field(alias="_id")
-    numero_expediente: str
+    numero_expediente: str = Field(alias="numeroExpediente")
     paciente: PacienteData
-    especialista_id: str
+    especialista_id: str = Field(alias="especialistaId")
     imagenes: ImagenesData
     analisis: AnalisisData
     resultado: str
-    fecha_analisis: datetime
+    fecha_analisis: datetime = Field(alias="fechaAnalisis")
 
     class Config:
         populate_by_name = True
