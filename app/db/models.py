@@ -55,8 +55,8 @@ class EspecialistaResponse(BaseModel):
     hospital: Optional[str] = None
     telefono: Optional[str] = None
     activo: bool
-    fecha_registro: datetime
-    ultimo_acceso: Optional[datetime] = None
+    fechaRegistro: datetime
+    ultimoAcceso: Optional[datetime] = None
 
     class Config:
         populate_by_name = True

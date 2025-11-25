@@ -49,11 +49,7 @@ async def registrar_especialista(especialista: EspecialistaCreate):
         "hospital": especialista.hospital,
         "telefono": especialista.telefono,
         "activo": True,
-        "fecha_registro": datetime.utcnow(),
-        "ultimo_acceso": None,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
-        "deleted_at": None
+        "fechaRegistro": datetime.utcnow(),
     }
     
     # Insertar en la base de datos
@@ -101,7 +97,7 @@ async def login(credentials: EspecialistaLogin):
     # Actualizar último acceso
     await db.especialistas.update_one(
         {"_id": especialista["_id"]},
-        {"$set": {"ultimo_acceso": datetime.utcnow()}}
+        {"$set": {"ultimoAcceso": datetime.utcnow()}}
     )
     
     # Preparar respuesta del especialista
