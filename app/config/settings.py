@@ -15,8 +15,14 @@ class Settings(BaseSettings):
     upload_folder: str = "./uploads"
     max_upload_size: int = 10485760  # 10MB
     
-    # Google Gemini (opcional)
+    # Google Gemini AI
     gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"  # Mismo modelo que Streamlit
+    gemini_enabled: bool = True  # Habilitar/deshabilitar Gemini
+    
+    # AI Model
+    ai_model_path: str = "best_model_vit.pth"
+    ai_enabled: bool = True  # Habilitar/deshabilitar análisis con IA
     
     # CORS
     allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:5173"]
